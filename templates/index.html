@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        AI Phishing Email Detection
+    </title>
+
+
+    <!-- Bootstrap CSS -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+
+    <!-- Bootstrap Icons -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+
+    <!-- Custom CSS -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+
+    <div class="container">
+
+
+        <!-- LOGO -->
+
+        <a class="navbar-brand fw-bold"
+           href="/">
+
+            <i class="bi bi-shield-check"></i>
+
+            PhishShield AI
+
+        </a>
+
+
+
+        <!-- NAVIGATION -->
+<div class="d-flex gap-2">
+
+    <!-- Dashboard -->
+    <a href=""
+       class="btn btn-light btn-sm">
+
+        <i class="bi bi-house-door"></i>
+        Dashboard
+
+    </a>
+
+     <!-- Scan Gmail -->
+    <a href="/scan-gmail"
+    class="btn btn-outline-info btn-sm">
+
+    <i class="bi bi-envelope-check"></i>
+    Scan Gmail Inbox
+
+    </a>
+
+    
+
+    <!-- Scan History -->
+    <a href="/history"
+       class="btn btn-outline-light btn-sm">
+
+        <i class="bi bi-clock-history"></i>
+        Scan History
+
+    </a>
+
+</div>
+
+    </div>
+
+</nav>
+
+
+
+<!-- =====================================================
+     MAIN CONTAINER
+===================================================== -->
+
+<div class="container py-4">
+
+
+
+    <!-- =================================================
+         DASHBOARD HEADER
+    ================================================== -->
+
+    <div class="dashboard-header mb-4">
+
+
+        <p class="text-primary fw-semibold mb-1">
+
+            <i class="bi bi-shield-lock"></i>
+
+            SECURITY DASHBOARD
+
+        </p>
+
+
+
+        <h1 class="fw-bold mb-2">
+
+            AI Phishing Email Detection
+
+        </h1>
+
+
+
+        <p class="text-muted mb-0">
+
+            Analyze suspicious emails using Machine Learning,
+            Gmail API and VirusTotal threat intelligence.
+
+        </p>
+
+
+    </div>
+
+
+
+    <!-- =================================================
+         DASHBOARD STATISTICS
+    ================================================== -->
+
+    <div class="row g-4 mb-4">
+
+
+
+        <!-- =============================================
+             TOTAL EMAILS
+        ============================================== -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="stat-card total-card">
+
+
+                <div class="stat-icon">
+
+                    <i class="bi bi-envelope"></i>
+
+                </div>
+
+
+                <div>
+
+                    <p class="stat-title">
+
+                        Total Emails
+
+                    </p>
+
+
+                    <h2>
+
+                        {{ gmail_results|length }}
+
+                    </h2>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =============================================
+             SAFE EMAILS
+        ============================================== -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="stat-card safe-card">
+
+
+                <div class="stat-icon">
+
+                    <i class="bi bi-shield-check"></i>
+
+                </div>
+
+
+                <div>
+
+                    <p class="stat-title">
+
+                        Safe Emails
+
+                    </p>
+
+
+                    <h2>
+
+                        {{ safe_count | default(0) }}
+
+                    </h2>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =============================================
+             SUSPICIOUS EMAILS
+        ============================================== -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="stat-card suspicious-card">
+
+
+                <div class="stat-icon">
+
+                    <i class="bi bi-question-triangle"></i>
+
+                </div>
+
+
+                <div>
+
+                    <p class="stat-title">
+
+                        Suspicious Emails
+
+                    </p>
+
+
+                    <h2>
+
+                        {{ suspicious_count | default(0) }}
+
+                    </h2>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =============================================
+             PHISHING EMAILS
+        ============================================== -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="stat-card phishing-card">
+
+
+                <div class="stat-icon">
+
+                    <i class="bi bi-exclamation-triangle"></i>
+
+                </div>
+
+
+                <div>
+
+                    <p class="stat-title">
+
+                        Phishing Emails
+
+                    </p>
+
+
+                    <h2>
+
+                        {{ phishing_count | default(0) }}
+
+                    </h2>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =================================================
+         SECURITY STATUS
+    ================================================== -->
+
+    <div class="security-status-bar mb-4">
+
+        <div class="d-flex align-items-center gap-3">
+
+
+            <div class="security-status-icon">
+
+                <i class="bi bi-activity"></i>
+
+            </div>
+
+
+            <div>
+
+                <small class="text-muted">
+
+                    Security Engine
+
+                </small>
+
+
+                <p class="mb-0 fw-semibold text-success">
+
+                    <i class="bi bi-circle-fill me-1"
+                       style="font-size:8px;"></i>
+
+                    AI Detection System Active
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="d-none d-md-block">
+
+            <span class="badge bg-success">
+
+                <i class="bi bi-shield-check"></i>
+
+                Protected
+
+            </span>
+
+        </div>
+
+    </div>
+
+    {% if gmail_error %}
+    <div class="alert alert-warning mt-3" role="alert">
+        <i class="bi bi-exclamation-triangle"></i>
+        {{ gmail_error }}
+    </div>
+    {% endif %}
+
+    <!-- =================================================
+         SECTION DIVIDER
+    ================================================== -->
+
+    <div class="section-divider"></div>
+
+
+
+<!-- =====================================================
+     PART 2 STARTS HERE
+     EMAIL SCANNER + SAFE/SUSPICIOUS/PHISHING RESULT
+===================================================== -->
+<!-- =====================================================
+     PART 2
+     EMAIL SCANNER + AI RESULT
+===================================================== -->
+
+<div class="row g-4 mt-2">
+
+    <!-- =================================================
+         EMAIL SCANNER
+    ================================================== -->
+
+    <div class="col-lg-7">
+
+        <div class="scanner-card">
+
+            <div class="scanner-header">
+
+                <h3 class="mb-1">
+
+                    <i class="bi bi-search text-primary"></i>
+
+                    Scan Suspicious Email
+
+                </h3>
+
+                <p class="text-muted mb-0">
+
+                   Click <strong>Scan Gmail Inbox</strong> above to analyze
+                   your latest Gmail messages using AI phishing detection.
+
+                </p>
+
+            </div>
+
+
+            <!-- SCAN FORM -->
+
+            <form method="POST" class="mt-4">
+
+                <div class="mb-3">
+
+                    <label
+                        for="email"
+                        class="form-label fw-semibold"
+                    >
+
+                        <i class="bi bi-envelope"></i>
+
+                        Email Content
+
+                    </label>
+
+
+                    <textarea
+                        class="form-control email-textarea"
+                        id="email"
+                        name="email"
+                        rows="10"
+                        placeholder="Paste suspicious email content here..."
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary scan-btn"
+                >
+
+                    <i class="bi bi-shield-check"></i>
+
+                    Scan Email
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         AI SCAN RESULT
+    ================================================== -->
+
+    <div class="col-lg-5">
+
+        <div class="result-card">
+
+            {% if prediction %}
+
+
+                <!-- =====================================
+                     RESULT ICON
+                ====================================== -->
+
+                <div class="text-center mb-4">
+
+
+                    <!-- PHISHING -->
+
+                    {% if is_phishing %}
+
+                        <div class="result-icon phishing-result-icon">
+
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+
+                        </div>
+
+
+                        <h3 class="text-danger fw-bold">
+
+                            {{ prediction }}
+
+                        </h3>
+
+
+
+                    <!-- SUSPICIOUS -->
+
+                    {% elif is_suspicious %}
+
+                        <div class="result-icon suspicious-result-icon">
+
+                            <i class="bi bi-question-circle-fill"></i>
+
+                        </div>
+
+
+                        <h3 class="text-warning fw-bold">
+
+                            {{ prediction }}
+
+                        </h3>
+
+
+
+                    <!-- SAFE -->
+
+                    {% else %}
+
+                        <div class="result-icon safe-result-icon">
+
+                            <i class="bi bi-shield-check"></i>
+
+                        </div>
+
+
+                        <h3 class="text-success fw-bold">
+
+                            {{ prediction }}
+
+                        </h3>
+
+                    {% endif %}
+
+
+                    <p class="text-muted">
+
+                        AI Detection Result
+
+                    </p>
+
+                </div>
+
+
+                <!-- =====================================
+                     CONFIDENCE SCORE
+                ====================================== -->
+<div class="confidence-box">
+
+    <div class="d-flex justify-content-between">
+
+        <span>Confidence Score</span>
+
+        <strong>{{ confidence }}%</strong>
+
+    </div>
+
+    <!-- ADD THIS -->
+    <div class="progress mt-2">
+
+        {% if is_phishing %}
+
+            <div class="progress-bar bg-danger"
+                 style="width: {{ confidence }}%;">
+            </div>
+
+        {% elif is_suspicious %}
+
+            <div class="progress-bar bg-warning"
+                 style="width: {{ confidence }}%;">
+            </div>
+
+        {% else %}
+
+            <div class="progress-bar bg-success"
+                 style="width: {{ confidence }}%;">
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+                   
+  
+                        <!-- PHISHING -->
+
+                        {% if is_phishing %}
+
+                            <div
+                                class="progress-bar bg-danger"
+                                role="progressbar"
+                                style="width: {{ confidence }}%;"
+                                aria-valuenow="{{ confidence }}"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                            ></div>
+
+
+
+                        <!-- SUSPICIOUS -->
+
+                        {% elif is_suspicious %}
+
+                            <div
+                                class="progress-bar bg-warning"
+                                role="progressbar"
+                                style="width: {{ confidence }}%;"
+                                aria-valuenow="{{ confidence }}"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                            ></div>
+
+
+
+                        <!-- SAFE -->
+
+                        {% else %}
+
+                            <div
+                                class="progress-bar bg-success"
+                                role="progressbar"
+                                style="width: {{ confidence }}%;"
+                                aria-valuenow="{{ confidence }}"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                            ></div>
+
+                        {% endif %}
+
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================
+                     SUSPICIOUS URLS
+                ====================================== -->
+                
+{% if risk_level %}
+
+<div class="alert
+{% if risk_level == 'HIGH RISK' %}
+alert-danger
+{% elif risk_level == 'MEDIUM RISK' %}
+alert-warning
+{% else %}
+alert-success
+{% endif %}
+mt-3 text-center fw-bold">
+
+    <i class="bi bi-shield-fill-check"></i>
+
+    Final Risk Level :
+    {{ risk_level }}
+
+</div>
+
+{% endif %}
+
+        
+                {% if urls %}
+
+                    <div class="mt-4">
+
+                        <h5 class="fw-bold">
+
+                            <i class="bi bi-link-45deg text-danger"></i>
+
+                            Detected URLs
+
+                        </h5>
+
+
+                        <div class="url-list">
+
+                            {% for url in urls %}
+
+                                <div class="url-item">
+
+                                    <i class="bi bi-exclamation-circle text-danger"></i>
+
+
+                                    <div class="flex-grow-1">
+
+                                        <a
+                                            href="{{ url }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+
+                                            {{ url }}
+
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="alert alert-warning py-2 mt-2 mb-0">
+
+                            <small>
+
+                                <i class="bi bi-exclamation-triangle"></i>
+
+                                Warning: Do not open unknown or suspicious
+                                links unless you trust the source.
+
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+
+                <!-- =====================================
+                     VIRUSTOTAL REPORT
+                ====================================== -->
+
+                {% if vt_result %}
+
+                    <div class="vt-report mt-4">
+
+                        <h5 class="fw-bold">
+
+                            <i class="bi bi-shield-lock"></i>
+
+                            VirusTotal Report
+
+                        </h5>
+
+
+                        <div class="vt-grid">
+
+
+                            <!-- MALICIOUS -->
+
+                            <div class="vt-stat malicious">
+
+                                <span>
+
+                                    Malicious
+
+                                </span>
+
+                                <strong>
+
+                                    {{ vt_result.get('malicious', 0) }}
+
+                                </strong>
+
+                            </div>
+
+
+                            <!-- SUSPICIOUS -->
+
+                            <div class="vt-stat suspicious">
+
+                                <span>
+
+                                    Suspicious
+
+                                </span>
+
+                                <strong>
+
+                                    {{ vt_result.get('suspicious', 0) }}
+
+                                </strong>
+
+                            </div>
+
+
+                            <!-- HARMLESS -->
+
+                            <div class="vt-stat harmless">
+
+                                <span>
+
+                                    Harmless
+
+                                </span>
+
+                                <strong>
+
+                                    {{ vt_result.get('harmless', 0) }}
+
+                                </strong>
+
+                            </div>
+
+
+                            <!-- UNDETECTED -->
+
+                            <div class="vt-stat undetected">
+
+                                <span>
+
+                                    Undetected
+
+                                </span>
+
+                                <strong>
+
+                                    {{ vt_result.get('undetected', 0) }}
+
+                                </strong>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+
+            {% else %}
+
+
+                <!-- =====================================
+                     DEFAULT STATE
+                ====================================== -->
+
+                <div class="empty-result">
+
+
+                    <div class="empty-result-icon">
+
+                        <i class="bi bi-shield-lock"></i>
+
+                    </div>
+
+
+                    <h4 class="fw-bold">
+
+                        Ready to Scan
+
+                    </h4>
+
+
+                    <p class="text-muted">
+
+                        Paste an email and click
+
+                        <strong>Scan Email</strong>
+
+                        to analyze potential phishing threats.
+
+                    </p>
+
+
+                    <div class="security-info">
+
+
+                        <div>
+
+                            <i class="bi bi-check-circle-fill text-success"></i>
+
+                            Machine Learning Detection
+
+                        </div>
+
+
+                        <div>
+
+                            <i class="bi bi-check-circle-fill text-success"></i>
+
+                            Suspicious URL Detection
+
+                        </div>
+
+
+                        <div>
+
+                            <i class="bi bi-check-circle-fill text-success"></i>
+
+                            VirusTotal Threat Intelligence
+
+                        </div>
+
+
+                        <div>
+
+                            <i class="bi bi-check-circle-fill text-success"></i>
+
+                            Gmail Inbox AI Analysis
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PART 3 STARTS HERE
+     GMAIL INBOX SAFE / SUSPICIOUS / PHISHING
+===================================================== -->
+<!-- =====================================================
+     PART 3
+     GMAIL INBOX AI SCAN
+===================================================== -->
+
+{% if gmail_results %}
+
+<div class="gmail-section mt-5">
+
+    <!-- GMAIL SECTION HEADER -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h3 class="mb-1">
+
+                <i class="bi bi-envelope-check text-primary"></i>
+
+                Gmail Inbox AI Scan
+
+            </h3>
+
+            <p class="text-muted mb-0">
+
+                Recent Gmail messages analyzed using AI phishing detection.
+
+            </p>
+
+        </div>
+
+
+        <span class="badge bg-primary fs-6">
+
+            {{ gmail_results|length }} Emails Scanned
+
+        </span>
+
+    </div>
+
+
+    <!-- =================================================
+         GMAIL EMAIL CARDS
+    ================================================== -->
+
+    <div class="row g-3">
+
+        {% for mail in gmail_results %}
+
+        <div class="col-12">
+
+
+            <!-- =========================================
+                 EMAIL CARD
+            ========================================== -->
+
+            <div class="gmail-card
+
+                {% if mail.prediction == '⚠️ Phishing' %}
+
+                    phishing-mail-card
+
+                {% elif mail.prediction == '⚠️ Suspicious' %}
+
+                    suspicious-mail-card
+
+                {% else %}
+
+                    safe-mail-card
+
+                {% endif %}
+
+            ">
+
+
+                <!-- =====================================
+                     EMAIL HEADER
+                ====================================== -->
+
+                <div class="gmail-card-header">
+
+
+                    <!-- EMAIL ICON -->
+
+                    <div class="gmail-icon">
+
+
+                        {% if mail.prediction == '⚠️ Phishing' %}
+
+                            <i class="
+                                bi bi-exclamation-triangle-fill
+                                text-danger
+                            "></i>
+
+
+                        {% elif mail.prediction == '⚠️ Suspicious' %}
+
+                            <i class="
+                                bi bi-question-circle-fill
+                                text-warning
+                            "></i>
+
+
+                        {% else %}
+
+                            <i class="
+                                bi bi-shield-check
+                                text-success
+                            "></i>
+
+                        {% endif %}
+
+
+                    </div>
+
+
+                    <!-- EMAIL TITLE -->
+
+                    <div class="gmail-title">
+
+
+                        <h5 class="mb-1">
+
+                            {{ mail.subject }}
+
+                        </h5>
+
+
+                        <p class="text-muted mb-0">
+
+                            <i class="bi bi-person"></i>
+
+                            From:
+
+                            <strong>
+
+                                {{ mail.sender }}
+
+                            </strong>
+
+                        </p>
+
+
+                    </div>
+
+
+                    <!-- =================================
+                         EMAIL STATUS BADGE
+                    ================================== -->
+
+                    <div>
+
+
+                        <!-- PHISHING -->
+
+                        {% if mail.prediction == '⚠️ Phishing' %}
+
+                            <span class="badge bg-danger">
+
+                                <i class="bi bi-exclamation-triangle"></i>
+
+                                Phishing
+
+                            </span>
+
+
+
+                        <!-- SUSPICIOUS -->
+
+                        {% elif mail.prediction == '⚠️ Suspicious' %}
+
+                            <span class="badge bg-warning text-dark">
+
+                                <i class="bi bi-question-circle"></i>
+
+                                Suspicious
+
+                            </span>
+
+
+
+                        <!-- SAFE -->
+
+                        {% else %}
+
+                            <span class="badge bg-success">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                Safe
+
+                            </span>
+
+                        {% endif %}
+
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =====================================
+                     CLEANED EMAIL BODY PREVIEW
+                ====================================== -->
+
+                <div class="gmail-body">
+
+                    <p>
+
+                        {{ mail.body[:350] }}
+
+                        {% if mail.body|length > 350 %}
+
+                            ...
+
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+
+                <!-- =====================================
+                     EMAIL FOOTER
+                ====================================== -->
+
+                <div class="gmail-footer">
+
+
+                    <!-- CONFIDENCE -->
+
+                    <div>
+
+                        <span class="text-muted">
+
+                            AI Confidence
+
+                        </span>
+
+
+                        <strong>
+
+                            {{ mail.confidence }}%
+
+                        </strong>
+
+                    </div>
+
+
+                    <!-- CONFIDENCE PROGRESS BAR -->
+
+                    <div class="gmail-confidence-bar">
+
+                        <div class="progress">
+
+
+                            <!-- PHISHING -->
+
+                            {% if mail.prediction == '⚠️ Phishing' %}
+
+                                <div
+                                    class="progress-bar bg-danger"
+                                    role="progressbar"
+                                    style="width: {{ mail.confidence }}%;"
+                                    aria-valuenow="{{ mail.confidence }}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                ></div>
+
+
+
+                            <!-- SUSPICIOUS -->
+
+                            {% elif mail.prediction == '⚠️ Suspicious' %}
+
+                                <div
+                                    class="progress-bar bg-warning"
+                                    role="progressbar"
+                                    style="width: {{ mail.confidence }}%;"
+                                    aria-valuenow="{{ mail.confidence }}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                ></div>
+
+
+
+                            <!-- SAFE -->
+
+                            {% else %}
+
+                                <div
+                                    class="progress-bar bg-success"
+                                    role="progressbar"
+                                    style="width: {{ mail.confidence }}%;"
+                                    aria-valuenow="{{ mail.confidence }}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                ></div>
+
+                            {% endif %}
+
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+{% else %}
+
+
+<!-- =====================================================
+     NO GMAIL RESULTS
+===================================================== -->
+
+<div class="gmail-empty mt-5">
+
+    <div class="text-center">
+
+
+        <i class="
+            bi bi-envelope-open
+            display-4
+            text-muted
+        "></i>
+
+
+        <h4 class="mt-3 fw-bold">
+
+            Gmail Inbox Scan
+
+        </h4>
+
+
+        <p class="text-muted mb-0">
+
+            Gmail inbox results will appear here
+            after you scan an email.
+
+        </p>
+
+
+    </div>
+
+</div>
+
+
+{% endif %}
+
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer class="dashboard-footer mt-5">
+
+    <div class="text-center">
+
+
+        <p class="mb-1 fw-semibold">
+
+            <i class="bi bi-shield-check"></i>
+
+            PhishShield AI
+
+        </p>
+
+
+        <small class="text-muted">
+
+            AI-Powered Email Security & Phishing Detection
+
+        </small>
+
+
+    </div>
+
+</footer>
+
+
+
+<!-- CLOSE MAIN CONTAINER -->
+
+</div>
+
+
+
+<!-- =====================================================
+     BOOTSTRAP JAVASCRIPT
+===================================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
+</body>
+
+</html>  
