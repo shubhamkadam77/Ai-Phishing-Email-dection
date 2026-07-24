@@ -9,3 +9,6 @@ phishing.db
 
 .vscode/
 *.log
+
+dataset/
+*.csv
